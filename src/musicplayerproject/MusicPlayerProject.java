@@ -30,8 +30,8 @@ public class MusicPlayerProject extends Application {
     public void start(Stage stage) throws Exception {
         //set title and get source controller to load GUI and controls
         stage.setTitle("Music Player Project");
-        Parent root = FXMLLoader.load(getClass().getResource("FXML.fxml"));
-        //Parent root = loader.load();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("FXML.fxml"));
+        Parent root = loader.load();
         //put controller into scene
         Scene scene = new Scene(root);
         //show the scene

@@ -15,7 +15,10 @@ import javafx.fxml.Initializable;
  * @author Zara
  */
 public class FXMLController implements Initializable {
-
+    //attributes of controller class
+    private DoublyLinkedPlaylist<Song> playlist = new DoublyLinkedPlaylist<>();
+    private UserUtility userList = new UserUtility();
+    
     @FXML
     private void openAction(ActionEvent event) {
     }

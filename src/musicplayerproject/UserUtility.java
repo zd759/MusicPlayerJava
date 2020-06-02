@@ -14,8 +14,7 @@ import java.util.Scanner;
  * @author Zara
  */
 public class UserUtility {
-
-    //private static User users = new User();
+    //array list attribute of userUtility stores user objects
     private static ArrayList<User> users = new ArrayList<>();
 
     //method to create the admin user required for assessment criteria
