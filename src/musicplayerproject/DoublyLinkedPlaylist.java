@@ -9,19 +9,19 @@ package musicplayerproject;
 /**
  *
  * @author Zara
- * @param <T>
+ * @param <E>
  */
-public class DoublyLinkedPlaylist<T> {
+public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another class
 
     //attributes
-    public Song<T> head, tail;
+    public Song head, tail;
 
     public DoublyLinkedPlaylist() {
         head = tail = null;
     }
 
     //method to add a song object to the end of the list while maintaining head and tail
-    public void addLastSong(T name, T path) {
+    public void addLastSong(String name, String path) {
         if (name != null) {
             //create a new song object to add to list
             Song newSong = new Song(name, path);
@@ -118,7 +118,7 @@ public class DoublyLinkedPlaylist<T> {
     }//end merge sort methods
 
     //method to remove a node from the list given the name - uses binary search to find the node
-    public void Remove(T name) {
+    public void Remove(String name) {
         Song target = binarySearch(name);
         if (target == null) {
             return;
@@ -134,7 +134,7 @@ public class DoublyLinkedPlaylist<T> {
     }
 
     //method to binary search the linked list playlist
-    public Song binarySearch(T target) {
+    public Song binarySearch(String target) {
         boolean found = false;
         int pointer = 0;
         if (head == null) {
@@ -145,12 +145,12 @@ public class DoublyLinkedPlaylist<T> {
         while (!(start != end)) {
             //find the middle
             Song middle = getMiddleNode(start);
-            if (middle.getName().toString().compareTo(target.toString()) == 0) {
+            if (middle.getName().toString().compareTo(target) == 0) {
                 return middle;
-            } else if (middle.getName().toString().compareTo(target.toString()) < 0) { 
+            } else if (middle.getName().toString().compareTo(target) < 0) { 
                 //if middle more than target
                 start = middle.next;
-            } else if (middle.getName().toString().compareTo(target.toString()) > 0) { 
+            } else if (middle.getName().toString().compareTo(target) > 0) { 
                 //if middle less than target
                 end = middle;
             }
@@ -159,10 +159,10 @@ public class DoublyLinkedPlaylist<T> {
     }
     
     //method for adding a node calls this method when the list is > 1 to check for duplicate song names
-    public Song checkDuplicates(T name){
+    public Song checkDuplicates(String name){
         Song dupe = head;
         while (dupe != null){
-            if (dupe == name){
+            if (dupe.getName() == name){
                 return dupe;
             }
             dupe = dupe.next;
