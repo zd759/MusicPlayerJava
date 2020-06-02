@@ -14,17 +14,32 @@
  */
 package musicplayerproject;
 
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
 /**
  *
  * @author Zara
  */
-public class MusicPlayerProject {
+public class MusicPlayerProject extends Application {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    @Override
+    public void start(Stage stage) throws Exception {
+        //set title and get source controller to load GUI and controls
+        stage.setTitle("Music Player Project");
+        Parent root = FXMLLoader.load(getClass().getResource("FXML.fxml"));
+        //Parent root = loader.load();
+        //put controller into scene
+        Scene scene = new Scene(root);
+        //show the scene
+        stage.setScene(scene);
+        stage.show();
     }
-    
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
