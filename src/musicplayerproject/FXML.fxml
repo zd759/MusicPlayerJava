@@ -38,19 +38,19 @@
     </MenuBar>
 <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
-            <ListView fx:id="listViewSongList" layoutX="210.0" prefHeight="374.0" prefWidth="217.0" />
+            <ListView fx:id="listViewSongList" layoutX="210.0" prefHeight="348.0" prefWidth="217.0" />
             <Button fx:id="btnClear" layoutX="35.0" layoutY="192.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" text="Clear" />
             <TextField fx:id="textFieldPassword" layoutX="35.0" layoutY="101.0" />
-            <Button fx:id="btnAddSongs" layoutX="447.0" layoutY="37.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="81.0" text="Add Songs" />
-            <Button fx:id="btnDeleteSong" layoutX="537.0" layoutY="36.0" mnemonicParsing="false" text="Delete Song" />
-            <Button fx:id="btnClearPlaylist" layoutX="536.0" layoutY="68.0" mnemonicParsing="false" text="Clear Playlist" />
-            <Button fx:id="btnPlay" layoutX="447.0" layoutY="116.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="52.0" text="Play" />
-            <Button fx:id="btnPause" layoutX="506.0" layoutY="116.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="52.0" text="Pause" />
-            <Button fx:id="btnStop" layoutX="566.0" layoutY="116.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="52.0" text="Stop" />
+            <Button fx:id="btnAddSongs" layoutX="447.0" layoutY="37.0" mnemonicParsing="false" onAction="#btnAddAction" prefHeight="25.0" prefWidth="81.0" text="Add Songs" />
+            <Button fx:id="btnDeleteSong" layoutX="537.0" layoutY="36.0" mnemonicParsing="false" onAction="#btnDeleteSongAction" text="Delete Song" />
+            <Button fx:id="btnClearPlaylist" layoutX="536.0" layoutY="68.0" mnemonicParsing="false" onAction="#btnClearPlaylistAction" text="Clear Playlist" />
+            <Button fx:id="btnPlay" layoutX="447.0" layoutY="116.0" mnemonicParsing="false" onAction="#btnPlayAction" prefHeight="25.0" prefWidth="52.0" text="Play" />
+            <Button fx:id="btnPause" layoutX="502.0" layoutY="116.0" mnemonicParsing="false" onAction="#btnPauseAction" prefHeight="25.0" prefWidth="60.0" text="Pause" />
+            <Button fx:id="btnStop" layoutX="566.0" layoutY="116.0" mnemonicParsing="false" onAction="#btnStopAction" prefHeight="25.0" prefWidth="52.0" text="Stop" />
             <Button fx:id="btnSavePlaylist" layoutX="447.0" layoutY="311.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="83.0" text="Save to CSV" />
             <Button fx:id="btnLoadPlaylist" layoutX="542.0" layoutY="311.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="83.0" text="Load Playlist" />
             <TextField fx:id="textFieldUsername" layoutX="35.0" layoutY="51.0" />
-            <Button fx:id="btnUserLogin" layoutX="35.0" layoutY="146.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="149.0" text="Log In" />
+            <Button fx:id="btnUserLogin" layoutX="125.0" layoutY="146.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" text="Log In" />
             <Button fx:id="btnLogOut" layoutX="125.0" layoutY="192.0" mnemonicParsing="false" text="Log Out" />
             <Label fx:id="lblUsername" layoutX="35.0" layoutY="28.0" text="Username" />
             <Label fx:id="lblPassword" layoutX="35.0" layoutY="80.0" text="Password" />
@@ -64,13 +64,15 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label fx:id="lblLoginStatus" layoutX="35.0" layoutY="237.0" prefHeight="17.0" prefWidth="149.0" text="(Login Status)" />
-            <Button fx:id="btnPrev" layoutX="447.0" layoutY="152.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="52.0" text="Prev" />
-            <Button fx:id="btnNext" layoutX="568.0" layoutY="152.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="50.0" text="Next" />
+            <Label fx:id="lblLoginStatus" layoutX="35.0" layoutY="237.0" prefHeight="17.0" prefWidth="149.0" text="(Login Status)" textFill="#1dda3a" />
+            <Button fx:id="btnPrev" layoutX="447.0" layoutY="152.0" mnemonicParsing="false" onAction="#btnPrevAction" prefHeight="25.0" prefWidth="52.0" text="Prev" />
+            <Button fx:id="btnNext" layoutX="568.0" layoutY="152.0" mnemonicParsing="false" onAction="#btnNextAction" prefHeight="25.0" prefWidth="50.0" text="Next" />
             <TextField fx:id="textFieldBinarySearch" layoutX="449.0" layoutY="217.0" prefHeight="25.0" prefWidth="175.0" />
-            <Button fx:id="btnBinarySearch" layoutX="551.0" layoutY="246.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="74.0" text="Search" />
-            <Label fx:id="lblSearchResult" layoutX="449.0" layoutY="250.0" prefHeight="17.0" prefWidth="98.0" text="(Search Result)" />
+            <Button fx:id="btnBinarySearch" layoutX="551.0" layoutY="246.0" mnemonicParsing="false" onAction="#btnBinarySearchAction" prefHeight="25.0" prefWidth="74.0" text="Search" />
+            <Label fx:id="lblSearchResult" layoutX="449.0" layoutY="250.0" prefHeight="17.0" prefWidth="98.0" text="(Search Result)" textFill="#ee2222" />
             <Label fx:id="lblBinarySearch" layoutX="449.0" layoutY="196.0" prefHeight="17.0" prefWidth="175.0" text="Binary Search Song Name" />
+            <Button fx:id="btnCreateUser" layoutX="35.0" layoutY="146.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="81.0" text="Create User" />
+            <Label fx:id="lblMessage" alignment="CENTER_RIGHT" layoutX="3.0" layoutY="349.0" prefHeight="20.0" prefWidth="634.0" text="(Message)" textFill="#006aff" />
       </children>
     </AnchorPane>
   </children>
