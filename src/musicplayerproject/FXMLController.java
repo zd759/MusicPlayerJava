@@ -122,17 +122,25 @@ public class FXMLController implements Initializable {
                 String username = textFieldUsername.getText();
                 String password = textFieldPassword.getText();
                 String result = userList.testUsername(username, password);
-                if ("verified".equals(result)) {
-                    login = true;
-                    lblLoginStatus.setText("Logged in");
-                    btnUserLogin.setDisable(true);
-                    btnLogOut.setDisable(false);
-                    enableMediaButtons();
-                    textFieldBinarySearch.setDisable(false);
-                } else if ("passFail".equals(result)) {
-                    lblLoginStatus.setText("Password fail");
-                } else if ("userFail".equals(result)) {
-                    lblLoginStatus.setText("Username not found");
+                if (null != result) {
+                    switch (result) {
+                        case "verified":
+                            login = true;
+                            lblLoginStatus.setText("Logged in");
+                            btnUserLogin.setDisable(true);
+                            btnLogOut.setDisable(false);
+                            enableMediaButtons();
+                            textFieldBinarySearch.setDisable(false);
+                            break;
+                        case "passFail":
+                            lblLoginStatus.setText("Password fail");
+                            break;
+                        case "userFail":
+                            lblLoginStatus.setText("Username not found");
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             clearTextFields();
@@ -200,7 +208,7 @@ public class FXMLController implements Initializable {
         textFieldBinarySearch.clear();
     }
     //----------END USER LOGIN METHODS-----------//
-    
+
     //----------MEDIA PLAYER METHODS-----------//
     //method to disable media player until log in successful
     @FXML
@@ -328,17 +336,30 @@ public class FXMLController implements Initializable {
     //method to clear the listVied and the entire linked list
     @FXML
     private void btnClearPlaylistAction(ActionEvent event) {
+        clearPlaylist();
+    }
+
+    //private method to clear playllist; used by load from csv and clear all songs button
+    private void clearPlaylist() {
         try {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Delete Playlist");
-            alert.setHeaderText(null);
-            alert.setContentText("Are you sure you want to delete the entire playlist?");
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                sortedPlaylist = new DoublyLinkedPlaylist<>();
-                displayPlaylist();
-                currentSong = null;
-                lblMessage.setText("Success! Playlist empty");
+            if (sortedPlaylist.getHead() != null) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Delete Playlist");
+                alert.setHeaderText(null);
+                alert.setContentText("Are you sure you want to delete the entire playlist?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    sortedPlaylist = new DoublyLinkedPlaylist<>();
+                    displayPlaylist();
+                    currentSong = null;
+                    lblMessage.setText("Success! Playlist empty");
+                    Status currentStatus = mediaPlayer.getStatus();
+                    if (currentStatus == Status.PLAYING) {
+                        mediaPlayer.stop();
+                    }
+                }
+            } else {
+                lblMessage.setText("No playlist to clear");
             }
         } catch (Exception e) {
             lblMessage.setText("Error: Cannot clear the playlist");
@@ -406,11 +427,13 @@ public class FXMLController implements Initializable {
     @FXML
     private void btnPrevAction(ActionEvent event) {
         try {
-            if ((currentSong != null) && (currentSong.prev != null)) {
-                currentSong = currentSong.prev;
-                playMusic(currentSong);
+            Song song = (Song) listViewSongList.getSelectionModel().getSelectedItem();
+            if (song.prev != null) {
+                Song prev = song.prev;
+                playMusic(prev);
+                listViewSongList.getSelectionModel().select(prev);
             } else {
-                lblMessage.setText("Cannot play previous song as this is the start of the playlist!");
+                lblMessage.setText("Cannot play next song as this is the end of the playlist!");
             }
         } catch (NullPointerException e) {
             lblMessage.setText("Error: Please select a song to play next song");
@@ -421,9 +444,11 @@ public class FXMLController implements Initializable {
     @FXML
     private void btnNextAction(ActionEvent event) {
         try {
-            if ((currentSong != null) && (currentSong.next != null)) {
-                currentSong = currentSong.next;
-                playMusic(currentSong);
+            Song song = (Song) listViewSongList.getSelectionModel().getSelectedItem();
+            if (song.next != null) {
+                Song next = song.next;
+                playMusic(next);
+                listViewSongList.getSelectionModel().select(next);
             } else {
                 lblMessage.setText("Cannot play next song as this is the end of the playlist!");
             }
@@ -490,16 +515,19 @@ public class FXMLController implements Initializable {
             //use scene to open file chooser
             file = fileChooser.showSaveDialog(lblMessage.getScene().getWindow());
             //write data to file
-            //file.save(file.getAbsolutePath());
-            CSVWriter writer = new CSVWriter(new FileWriter(file));
-            Song temp = head;
-            while (temp != null) {
-                System.out.print(temp.getName() + " ");
-                String[] data = {temp.getName().toString(), temp.getPath().toString()};
-                writer.writeNext(data);
-                temp = temp.next;
-                lblMessage.setText("Success! Playlist saved to CSV");
+            if (file != null) {
+                String fileAsString = (file.toString());
+                CSVWriter writer = new CSVWriter(new FileWriter(fileAsString));
+                Song temp = head;
+                while (temp != null) {
+                    //System.out.print(temp.getName() + " ");
+                    String[] data = {temp.getName().toString(), temp.getPath().toString()};
+                    writer.writeNext(data);
+                    temp = temp.next;
+                }
+                writer.close();
             }
+            lblMessage.setText("Success! Playlist saved to CSV");
         } catch (IOException ex) {
             lblMessage.setText("Error writing to CSV file");
         }
@@ -519,10 +547,11 @@ public class FXMLController implements Initializable {
             //use scene to open file chooser
             file = fileChooser.showOpenDialog(lblMessage.getScene().getWindow());
             if (file != null) {
-                //Are you sure you want to load playlist? Any current playlist data will be lost.
-                btnClearPlaylistAction(event);
+                String fileAsString = (file.toString());
+                //Are you sure you want to load playlist? Data will be lost.
+                clearPlaylist();
                 //start reader for the selected csv
-                CSVReader reader = new CSVReader(new FileReader(file));
+                CSVReader reader = new CSVReader(new FileReader(fileAsString));
                 List<String[]> records = reader.readAll();
                 Iterator<String[]> iterator = records.iterator();
                 //reset the sorted playlist to null
@@ -547,7 +576,7 @@ public class FXMLController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //upon load, disable these functions until methods enable them appropriatley
-        disableMediaButtons();
+        //disableMediaButtons();
         lblSearchResult.setText("");
         lblLoginStatus.setText("");
         lblMessage.setText("");

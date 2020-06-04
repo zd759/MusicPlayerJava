@@ -153,7 +153,7 @@ public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another cla
         target = null;
     }
 
-//method to binary search the linked list playlist
+    //method to binary search the linked list playlist
     public Song binarySearch(String target) {
         //boolean found = false;
         //int pointer = 0;
@@ -164,18 +164,18 @@ public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another cla
         //recursive search function, while start and end are not the same, or start not target
         while (start != end) {
             //find the middle
-            Song middle = getMiddleNode(start);
-            if (middle.getName().toString().compareTo(target) == 0) {
+            Song middle = getMiddleForSearch(start, end);
+            if (middle.getName().toString().compareToIgnoreCase(target) == 0) {
                 return middle;
             } else if (middle.getName().toString().compareTo(target) < 0) {
-                //if middle more than target
+                //if middle less than target
                 if (middle.next != null) {
                     start = middle.next;
                 } else {
                     start = middle;
                 }
             } else if (middle.getName().toString().compareTo(target) > 0) {
-                //if middle less than target
+                //if middle more than target
                 if (middle.prev != null) {
                     end = middle.prev;
                 } else {
@@ -183,11 +183,24 @@ public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another cla
                 }
             }
         }//if start was target at some point
-        if (start.getName().toString().compareTo(target) == 0) {
+        if (start.getName().toString().compareToIgnoreCase(target) == 0) {
             return start;
         } else {
             return null;
         }
+    }
+    //method to get middle of list used by binary search
+    private Song getMiddleForSearch(Song start, Song end){
+        if (start == null){
+            return null;
+        }
+        Song fast = start, slow = start;
+        while ((!(fast.getName().toString().compareTo(end.getName().toString()) == 0)) 
+                && (!(fast.next.getName().toString().compareTo(end.getName().toString()) == 0))) {
+            fast = fast.next.next;
+            slow = slow.next;
+        }
+        return slow;
     }
 
     //method for adding a node calls this method when the list is > 1 to check for duplicate song names
