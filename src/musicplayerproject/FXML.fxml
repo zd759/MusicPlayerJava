@@ -38,8 +38,8 @@
     </MenuBar>
 <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
-            <ListView fx:id="listViewSongList" layoutX="210.0" prefHeight="348.0" prefWidth="217.0" />
-            <Button fx:id="btnClear" layoutX="35.0" layoutY="192.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" text="Clear" />
+            <ListView fx:id="listViewSongList" layoutX="210.0" prefHeight="348.0" prefWidth="217.0" onMouseClicked="#handleSelectedIndexAction" />
+            <Button fx:id="btnClear" layoutX="35.0" layoutY="192.0" mnemonicParsing="false" onAction="#btnClearAction" prefHeight="25.0" prefWidth="59.0" text="Clear" />
             <TextField fx:id="textFieldPassword" layoutX="35.0" layoutY="101.0" />
             <Button fx:id="btnAddSongs" layoutX="447.0" layoutY="37.0" mnemonicParsing="false" onAction="#btnAddAction" prefHeight="25.0" prefWidth="81.0" text="Add Songs" />
             <Button fx:id="btnDeleteSong" layoutX="537.0" layoutY="36.0" mnemonicParsing="false" onAction="#btnDeleteSongAction" text="Delete Song" />
@@ -50,8 +50,8 @@
             <Button fx:id="btnSavePlaylist" layoutX="447.0" layoutY="311.0" mnemonicParsing="false" onAction="#btnSavePlaylistAction" prefHeight="25.0" prefWidth="83.0" text="Save to CSV" />
             <Button fx:id="btnLoadPlaylist" layoutX="542.0" layoutY="311.0" mnemonicParsing="false" onAction="#btnLoadPlaylistAction" prefHeight="25.0" prefWidth="83.0" text="Load Playlist" />
             <TextField fx:id="textFieldUsername" layoutX="35.0" layoutY="51.0" />
-            <Button fx:id="btnUserLogin" layoutX="125.0" layoutY="146.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="59.0" text="Log In" />
-            <Button fx:id="btnLogOut" layoutX="125.0" layoutY="192.0" mnemonicParsing="false" text="Log Out" />
+            <Button fx:id="btnUserLogin" layoutX="125.0" layoutY="146.0" mnemonicParsing="false" onAction="#btnUserLoginAction" prefHeight="25.0" prefWidth="59.0" text="Log In" />
+            <Button fx:id="btnLogOut" layoutX="125.0" layoutY="192.0" mnemonicParsing="false" onAction="#btnLogOutAction" text="Log Out" />
             <Label fx:id="lblUsername" layoutX="35.0" layoutY="28.0" text="Username" />
             <Label fx:id="lblPassword" layoutX="35.0" layoutY="80.0" text="Password" />
             <Label fx:id="lblUserLogin" layoutX="35.0" layoutY="6.0" prefHeight="20.0" prefWidth="90.0" text="User Login" underline="true">
@@ -71,7 +71,7 @@
             <Button fx:id="btnBinarySearch" layoutX="551.0" layoutY="246.0" mnemonicParsing="false" onAction="#btnBinarySearchAction" prefHeight="25.0" prefWidth="74.0" text="Search" />
             <Label fx:id="lblSearchResult" alignment="TOP_LEFT" layoutX="449.0" layoutY="274.0" prefHeight="17.0" prefWidth="175.0" text="(Search Result)" textFill="#ee2222" />
             <Label fx:id="lblBinarySearch" layoutX="449.0" layoutY="196.0" prefHeight="17.0" prefWidth="175.0" text="Binary Search Song Name" />
-            <Button fx:id="btnCreateUser" layoutX="35.0" layoutY="146.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="81.0" text="Create User" />
+            <Button fx:id="btnCreateUser" layoutX="35.0" layoutY="146.0" mnemonicParsing="false" onAction="#btnCreateUserAction" prefHeight="25.0" prefWidth="81.0" text="Create User" />
             <Label fx:id="lblMessage" alignment="CENTER_RIGHT" layoutX="3.0" layoutY="349.0" prefHeight="20.0" prefWidth="634.0" text="(Message)" textFill="#006aff" />
       </children>
     </AnchorPane>

@@ -6,8 +6,8 @@ package musicplayerproject;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
+import java.awt.Desktop;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -43,7 +44,8 @@ public class FXMLController implements Initializable {
     //attributes of controller class
     private DoublyLinkedPlaylist<Song> playlist = new DoublyLinkedPlaylist<>();
     private DoublyLinkedPlaylist<Song> sortedPlaylist = new DoublyLinkedPlaylist<>();
-    private UserUtility userList = new UserUtility();
+    private final UserUtility userList = new UserUtility();
+    private boolean login = false; //variable to check login status
 
     //----------initialise components of scene----------//
     //for login
@@ -74,28 +76,131 @@ public class FXMLController implements Initializable {
 
     //----------MENU ITEM ACTION METHODS----------//
     @FXML
-    private void openAction(ActionEvent event) {
-        //pass to open csv method
+    private void openAction(ActionEvent event) throws CsvException {
+        //pass to load csv method
+        btnLoadPlaylistAction(event);
     }
 
     @FXML
     private void saveAsAction(ActionEvent event) {
         //pass to save to csv method
+        btnSavePlaylistAction(event);
     }
 
     @FXML
     private void quitAction(ActionEvent event) {
         //close application
+        System.out.println("Media Player closed from menu bar item 'Quit'"); //print statment
+        Platform.exit();//exit the gui form
     }
 
+    //menu item handler to load help file page in local browser
     @FXML
     private void helpFileAction(ActionEvent event) {
         //direct to help file
+        lblMessage.setText("Help page accessed from menu bar"); //print statement
+        String url = "help.html"; // the help files, e.g. index.html
+        File htmlFile = new File(url); // file object of the help file
+        try {
+            Desktop.getDesktop().browse(htmlFile.toURI()); // open the help file in a default browser
+        } catch (IOException ex) {
+            lblMessage.setText("Error accessing help file!");//print error
+        }
     }
     //----------END MENU ITEM METHODS----------//
 
     //----------USER LOGIN METHODS-----------//
+    //method to log in user using text field inputs
+    @FXML
+    private void btnUserLoginAction() {
+        try {
+            if (textFieldUsername.getText().isBlank()) {
+                lblLoginStatus.setText("Enter username!");
+            } else if (textFieldPassword.getText().isEmpty()) {
+                lblLoginStatus.setText("Enter password!");
+            } else {
+                String username = textFieldUsername.getText();
+                String password = textFieldPassword.getText();
+                String result = userList.testUsername(username, password);
+                if ("verified".equals(result)) {
+                    login = true;
+                    lblLoginStatus.setText("Logged in");
+                    btnUserLogin.setDisable(true);
+                    btnLogOut.setDisable(false);
+                    enableMediaButtons();
+                    textFieldBinarySearch.setDisable(false);
+                } else if ("passFail".equals(result)) {
+                    lblLoginStatus.setText("Password fail");
+                } else if ("userFail".equals(result)) {
+                    lblLoginStatus.setText("Username not found");
+                }
+            }
+            clearTextFields();
+        } catch (NullPointerException e) {
+            lblLoginStatus.setText("Login error");
+        }
+    }
+
+    //mwthod to log out user disables media player ability
+    @FXML
+    private void btnLogOutAction() {
+        try {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Song");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to log out?");
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                login = false;
+                lblLoginStatus.setText("Logged out");
+                btnUserLogin.setDisable(false);
+                btnLogOut.setDisable(true);
+                textFieldBinarySearch.setDisable(true);
+                disableMediaButtons();
+            }
+        } catch (Exception e) {
+            lblLoginStatus.setText("Error logging out");
+        }
+    }
+
+    //method handler to add a new user and store in UserRepo array list with hashing
+    @FXML
+    private void btnCreateUserAction() {
+        try {
+            if (textFieldUsername.getText().isBlank()) {
+                lblLoginStatus.setText("Enter username!");
+            } else if (textFieldPassword.getText().isEmpty()) {
+                lblLoginStatus.setText("Enter password!");
+            } else {
+                String username = textFieldUsername.getText();
+                String password = textFieldPassword.getText();
+                String result = userList.addUser(username, password);
+                if (result != null) {
+                    lblLoginStatus.setText(result);
+                } else {
+                    lblLoginStatus.setText("Add user failed");
+                }
+            }
+            clearTextFields();
+        } catch (NullPointerException e) {
+            lblLoginStatus.setText("Add new user error");
+        }
+    }
+
+    //button method to clear textFields in user area
+    @FXML
+    private void btnClearAction(ActionEvent event) {
+        clearTextFields();
+    }
+
+    //private method to clear user function textboxes
+    private void clearTextFields() {
+        textFieldUsername.clear();
+        textFieldPassword.clear();
+        textFieldBinarySearch.clear();
+    }
     //----------END USER LOGIN METHODS-----------//
+    
     //----------MEDIA PLAYER METHODS-----------//
     //method to disable media player until log in successful
     @FXML
@@ -109,8 +214,6 @@ public class FXMLController implements Initializable {
         btnNext.setDisable(true);
         btnPrev.setDisable(true);
         btnBinarySearch.setDisable(true);
-        btnSavePlaylist.setDisable(true);
-        btnLoadPlaylist.setDisable(true);
     }
 
     //method to enable media player when log in successful
@@ -125,8 +228,6 @@ public class FXMLController implements Initializable {
         btnNext.setDisable(false);
         btnPrev.setDisable(false);
         btnBinarySearch.setDisable(false);
-        btnSavePlaylist.setDisable(false);
-        btnLoadPlaylist.setDisable(false);
     }
 
     //method for user to add songs to the DoublyLinkedPlaylist and listViewSongList
@@ -355,26 +456,44 @@ public class FXMLController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleSelectedIndexAction() {
+        try {
+            Song song = (Song) listViewSongList.getSelectionModel().getSelectedItem();
+            playMusic(song);
+        } catch (Exception e) {
+            lblMessage.setText("Selected index error");
+        }
+    }
+
     //----------END MEDIA PLAYER METHODS-----------//
-    
     //----------CSV METHODS-----------//
-    
     //method to save the current playlist to .csv using third party library OpenCSV
     @FXML
-    private void btnSavePlaylistAction(ActionEvent event){
-        if (sortedPlaylist.getHead() != null){
+    private void btnSavePlaylistAction(ActionEvent event) {
+        if (sortedPlaylist.getHead() != null) {
             saveData(sortedPlaylist.getHead());
         } else {
             lblMessage.setText("Error: Please add songs to save file");
         }
     }
-    
-    //
-    private void saveData(Song head){
+
+    //private method to save the playlist to csv file format
+    private void saveData(Song head) {
         try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().addAll(new ExtensionFilter(
+                    "CSV Files", "*.csv"));
+            fileChooser.setTitle("Save CSV file");
+            //opens on this projects' directory
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+            //use scene to open file chooser
+            file = fileChooser.showSaveDialog(lblMessage.getScene().getWindow());
+            //write data to file
+            //file.save(file.getAbsolutePath());
             CSVWriter writer = new CSVWriter(new FileWriter(file));
             Song temp = head;
-            while (temp != null){
+            while (temp != null) {
                 System.out.print(temp.getName() + " ");
                 String[] data = {temp.getName().toString(), temp.getPath().toString()};
                 writer.writeNext(data);
@@ -385,39 +504,56 @@ public class FXMLController implements Initializable {
             lblMessage.setText("Error writing to CSV file");
         }
     }
-    
+
     //method to load a playlist from .csv using third party library OpenCSV
     @FXML
-    private void btnLoadPlaylistAction(ActionEvent event) throws CsvException{
+    private void btnLoadPlaylistAction(ActionEvent event) throws CsvException {
         try {
-            //Are you sure you want to load playlist? Any current playlist data will be lost.
-            btnClearPlaylistAction(event);
-            //start reader for the selected csv
-            CSVReader reader = new CSVReader(new FileReader(file));
-            List<String[]> records = reader.readAll();
-            Iterator<String[]> iterator = records.iterator();
-            //reset the sorted playlist to null
-            sortedPlaylist = new DoublyLinkedPlaylist<>();
-            while (iterator.hasNext()){
-                String[] record = iterator.next();
-                sortedPlaylist.addLastSong(record[0], record[1]);
+            //ask user to choose a compatible file
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().addAll(new ExtensionFilter(
+                    "CSV Files", "*.csv"));
+            fileChooser.setTitle("Open CSV file");
+            //opens on this projects' directory
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+            //use scene to open file chooser
+            file = fileChooser.showOpenDialog(lblMessage.getScene().getWindow());
+            if (file != null) {
+                //Are you sure you want to load playlist? Any current playlist data will be lost.
+                btnClearPlaylistAction(event);
+                //start reader for the selected csv
+                CSVReader reader = new CSVReader(new FileReader(file));
+                List<String[]> records = reader.readAll();
+                Iterator<String[]> iterator = records.iterator();
+                //reset the sorted playlist to null
+                sortedPlaylist = new DoublyLinkedPlaylist<>();
+                while (iterator.hasNext()) {
+                    String[] record = iterator.next();
+                    sortedPlaylist.addLastSong(record[0], record[1]);
+                }
+                reader.close();
+                lblMessage.setText("Playlist loaded from CSV");
+                displayPlaylist();
             }
-            reader.close();
-            lblMessage.setText("Playlist loaded from CSV");
-            displayPlaylist();
         } catch (IOException ex) {
             lblMessage.setText("Error loading file from CSV");
         }
     }
+
     //----------END CSV METHODS-----------//
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //disableMediaButtons();
+        //upon load, disable these functions until methods enable them appropriatley
+        disableMediaButtons();
         lblSearchResult.setText("");
         lblLoginStatus.setText("");
         lblMessage.setText("");
+        btnLogOut.setDisable(true);
+        textFieldBinarySearch.setDisable(true);
+        //add admin user by default
+        userList.addAdminUser();
     }
 }
