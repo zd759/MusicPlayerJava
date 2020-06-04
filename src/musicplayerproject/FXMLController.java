@@ -3,8 +3,16 @@
  */
 package musicplayerproject;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -62,7 +70,7 @@ public class FXMLController implements Initializable {
     //buttons for csv read/write
     @FXML
     private Button btnSavePlaylist, btnLoadPlaylist;
-    private File selectedFile;
+    private File file;
 
     //----------MENU ITEM ACTION METHODS----------//
     @FXML
@@ -221,7 +229,7 @@ public class FXMLController implements Initializable {
     private void btnClearPlaylistAction(ActionEvent event) {
         try {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Delete Song");
+            alert.setTitle("Delete Playlist");
             alert.setHeaderText(null);
             alert.setContentText("Are you sure you want to delete the entire playlist?");
             Optional<ButtonType> result = alert.showAndWait();
@@ -327,14 +335,80 @@ public class FXMLController implements Initializable {
     @FXML
     private void btnBinarySearchAction(ActionEvent event) {
         try {
-            lblSearchResult.setText("hello binary");
+            if (sortedPlaylist.getHead() != null) {
+                String target = textFieldBinarySearch.getText();
+                if (!(target.isBlank())) {
+                    Song result = sortedPlaylist.binarySearch(target);
+                    if (result != null) {
+                        currentSong = result;
+                        playMusic(currentSong);
+                        lblSearchResult.setText(result.getName() + " was found!");
+                    } else {
+                        lblSearchResult.setText(target + " not found.");
+                    }
+                } else {
+                    lblMessage.setText("Please enter something to search");
+                }
+            }
         } catch (NullPointerException e) {
-
+            lblSearchResult.setText("Binary search error");
         }
     }
 
     //----------END MEDIA PLAYER METHODS-----------//
+    
     //----------CSV METHODS-----------//
+    
+    //method to save the current playlist to .csv using third party library OpenCSV
+    @FXML
+    private void btnSavePlaylistAction(ActionEvent event){
+        if (sortedPlaylist.getHead() != null){
+            saveData(sortedPlaylist.getHead());
+        } else {
+            lblMessage.setText("Error: Please add songs to save file");
+        }
+    }
+    
+    //
+    private void saveData(Song head){
+        try {
+            CSVWriter writer = new CSVWriter(new FileWriter(file));
+            Song temp = head;
+            while (temp != null){
+                System.out.print(temp.getName() + " ");
+                String[] data = {temp.getName().toString(), temp.getPath().toString()};
+                writer.writeNext(data);
+                temp = temp.next;
+                lblMessage.setText("Success! Playlist saved to CSV");
+            }
+        } catch (IOException ex) {
+            lblMessage.setText("Error writing to CSV file");
+        }
+    }
+    
+    //method to load a playlist from .csv using third party library OpenCSV
+    @FXML
+    private void btnLoadPlaylistAction(ActionEvent event) throws CsvException{
+        try {
+            //Are you sure you want to load playlist? Any current playlist data will be lost.
+            btnClearPlaylistAction(event);
+            //start reader for the selected csv
+            CSVReader reader = new CSVReader(new FileReader(file));
+            List<String[]> records = reader.readAll();
+            Iterator<String[]> iterator = records.iterator();
+            //reset the sorted playlist to null
+            sortedPlaylist = new DoublyLinkedPlaylist<>();
+            while (iterator.hasNext()){
+                String[] record = iterator.next();
+                sortedPlaylist.addLastSong(record[0], record[1]);
+            }
+            reader.close();
+            lblMessage.setText("Playlist loaded from CSV");
+            displayPlaylist();
+        } catch (IOException ex) {
+            lblMessage.setText("Error loading file from CSV");
+        }
+    }
     //----------END CSV METHODS-----------//
     /**
      * Initializes the controller class.
@@ -344,5 +418,6 @@ public class FXMLController implements Initializable {
         //disableMediaButtons();
         lblSearchResult.setText("");
         lblLoginStatus.setText("");
+        lblMessage.setText("");
     }
 }

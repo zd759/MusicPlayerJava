@@ -150,8 +150,7 @@ public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another cla
             target.prev.next = target.next;
         }
         //delete the target node
-        Song delete = null;
-        target = delete;
+        target = null;
     }
 
 //method to binary search the linked list playlist
@@ -160,11 +159,9 @@ public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another cla
         //int pointer = 0;
         if (getHead() == null) {
             return null;
-        } else if (head.getName() == target) {
-            return head;
         }
         Song start = getHead(), end = getTail();
-        //recursive search function, while start and end are not the same
+        //recursive search function, while start and end are not the same, or start not target
         while (start != end) {
             //find the middle
             Song middle = getMiddleNode(start);
@@ -172,13 +169,25 @@ public class DoublyLinkedPlaylist<E> { //E = Element. Can be Song or another cla
                 return middle;
             } else if (middle.getName().toString().compareTo(target) < 0) {
                 //if middle more than target
-                start = middle.next;
+                if (middle.next != null) {
+                    start = middle.next;
+                } else {
+                    start = middle;
+                }
             } else if (middle.getName().toString().compareTo(target) > 0) {
                 //if middle less than target
-                end = middle;
+                if (middle.prev != null) {
+                    end = middle.prev;
+                } else {
+                    end = middle;
+                }
             }
+        }//if start was target at some point
+        if (start.getName().toString().compareTo(target) == 0) {
+            return start;
+        } else {
+            return null;
         }
-        return null;
     }
 
     //method for adding a node calls this method when the list is > 1 to check for duplicate song names
