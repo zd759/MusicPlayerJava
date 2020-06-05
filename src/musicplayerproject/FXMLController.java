@@ -328,6 +328,10 @@ public class FXMLController implements Initializable {
                 currentSong = sortedPlaylist.getHead();
                 lblMessage.setText(selected.getName() + " deleted");
             }
+            Status currentStatus = mediaPlayer.getStatus();
+            if (currentStatus == Status.PLAYING) {
+                mediaPlayer.stop();
+            }
         } catch (NullPointerException e) {
             lblMessage.setText("Error: No track selected");
         }
@@ -373,6 +377,7 @@ public class FXMLController implements Initializable {
             //mediaPlayer.stop();
             currentSong = (Song) listViewSongList.getSelectionModel().getSelectedItem();
             playMusic(currentSong);
+            btnPause.setText("Pause");
         } catch (NullPointerException e) {
             lblMessage.setText("Error: No track selected");
         }
@@ -399,12 +404,14 @@ public class FXMLController implements Initializable {
             if (currentStatus == Status.PLAYING) {
                 mediaPlayer.pause();
                 btnPause.setText("Resume");
+                lblMessage.setText("Song Paused");
             } else if ((currentStatus == Status.PAUSED) || (currentStatus == Status.STOPPED)) {
                 //check the time to resume (duration)
                 var length = mediaPlayer.getCurrentTime();
                 mediaPlayer.seek(length);
                 mediaPlayer.play();
                 btnPause.setText("Pause");
+                lblMessage.setText("Song Resumed");
             }
         } catch (NullPointerException e) {
             lblMessage.setText("Please select a song to pause");
@@ -417,6 +424,8 @@ public class FXMLController implements Initializable {
         try {
             if (mediaPlayer != null) {
                 mediaPlayer.stop();
+                lblMessage.setText("Song Stopped");
+                btnPause.setText("Resume");
             }
         } catch (NullPointerException e) {
             lblMessage.setText("Please select a song to stop");
@@ -576,11 +585,11 @@ public class FXMLController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //upon load, disable these functions until methods enable them appropriatley
-        //disableMediaButtons();
         lblSearchResult.setText("");
         lblLoginStatus.setText("");
         lblMessage.setText("");
         btnLogOut.setDisable(true);
+        disableMediaButtons();
         textFieldBinarySearch.setDisable(true);
         //add admin user by default
         userList.addAdminUser();

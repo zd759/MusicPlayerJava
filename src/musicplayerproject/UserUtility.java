@@ -60,7 +60,7 @@ public class UserUtility {
             if (result) {
                 return ("verified");
             } else {
-                return ("passFailed");
+                return ("passFail");
             }
         } else {
             return ("userFail");

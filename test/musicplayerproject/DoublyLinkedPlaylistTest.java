@@ -75,11 +75,11 @@ public class DoublyLinkedPlaylistTest {
     /**
      * Test of addLastSong method, of class DoublyLinkedPlaylist.
      */
-    @Test
+    @org.junit.Test
     public void testAddLastSong() {
         testList.addLastSong("name", "path");
         assertEquals(1, testList.getLengthOfPlaylist());
-        // TODO review the generated test code and remove the default call to fail.
+        assertEquals("name", testList.getHead().getName());
     }
 
     /**
@@ -101,14 +101,12 @@ public class DoublyLinkedPlaylistTest {
      */
     @Test
     public void testMergeSort() {
-        System.out.println("mergeSort");
-        Song head = null;
-        DoublyLinkedPlaylist instance = new DoublyLinkedPlaylist();
-        Song expResult = null;
-        Song result = instance.mergeSort(head);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        testList.addLastSong("name3", "path3");
+        testList.addLastSong("name2", "path2");
+        testList.addLastSong("name", "path");
+        assertEquals("name", testList.getHead().getName());
+        Song test = testList.mergeSort(testList.getHead());
+        assertEquals(testList.getHead().next.next.getName(), "name3");
     }
 
     /**
